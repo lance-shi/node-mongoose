@@ -9,26 +9,43 @@ const connect = mongoose.connect(url);
 connect.then((db) => {
     console.log('Connected correctly to server');
 
-    var newDish = Dishes({
-        name: 'Uthappizza34521',
+    Dishes.create({
+        name: 'Uthappizza123',
         description: 'test'
-    });
+    })
+    .then((dish) => {
+        console.log(dish);
 
-    newDish.save()
-        .then((dish) => {
-            console.log(dish);
+        return Dishes.findByIdAndUpdate(dish._id, {
+            $set: {description: "Updated test"},
+        }, {
+            new: true
+        }).exec();
+    })
+    .catch((err) => {
+        console.log('err' + err);
+    })
+    .then((dish) => {
+        console.log(dish);
 
-            return Dishes.find({}).exec();
-        })
-        .then((dishes) => {
-            console.log(dishes);
+        dish.comments.push({
+            rating: 5,
+            comment: "I am getting drunk",
+            author: "Leonardo"
+        });
 
-            return Dishes.collection.drop();
-        })
-        .then(() => {
-            return db.disconnect();
-        })
-        .catch((err) => {
-            console.log(err);
-        })
+        return dish.save();
+    })
+    .then((dish) => {
+        console.log(dish);
+
+        return Dishes.collection.drop();
+        
+    })
+    .then(() => {
+        db.disconnect();
+    })
+    .catch((err) => {
+        console.log(err);
+    })
 });
